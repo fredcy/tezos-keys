@@ -5,16 +5,16 @@ VERSION = $(shell git describe --always)
 build: elm.js
 
 elm.js: $(SRC)
-	elm make src/Main.elm --output=$@
+	elm make --yes src/Main.elm --output=$@
 
 ###
 
 #NODE_URL = https://tezos.ostraca.org
 NODE_URL = http://rpc.ostez.com
 
-SITE = site
+SITE = dist
 
-dist: $(SITE) $(SITE)/elm.js $(SITE)/index.html $(SITE)/tezos.css $(SITE)/tezos.js versionfile
+site: $(SITE) $(SITE)/elm.js $(SITE)/index.html $(SITE)/tezos.css $(SITE)/tezos.js versionfile
 
 $(SITE):
 	mkdir $(SITE)
@@ -34,5 +34,5 @@ $(SITE)/tezos.js: tezos.js
 versionfile:
 	echo "$(VERSION)" > $(SITE)/version.html
 
-publish: dist
+publish: site
 	rsync -av $(SITE)/ fred@a.ostraca.org:explorer/www
