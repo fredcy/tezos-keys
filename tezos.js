@@ -5,6 +5,7 @@ const bs58check = require('bs58check');
 
 (function() {
     var prefix = {
+	edpk: new Uint8Array([13, 15, 37, 217]),
 	edsk: new Uint8Array([43, 246, 78, 7]),
 	edsig: new Uint8Array([9, 245, 205, 134, 18]),
     };
@@ -31,6 +32,17 @@ const bs58check = require('bs58check');
 	return sig_b58check;
     }
 
+    function calcPk(sk_b58c) {
+	var sk = b58cdecode(sk_b58c, prefix.edsk);
+	console.log("sk", sk);
+
+	low_half = sk.slice(32);
+	var pk = b58cencode(low_half, prefix.edpk);
+
+	console.log("pk", pk);
+	return pk
+    }
+
     // MAIN
 
     const SERVER = "http://localhost:8732";
@@ -44,11 +56,7 @@ const bs58check = require('bs58check');
 
     app.ports.sendSk.subscribe(function(req) {
 	try {
-	    var dec = b58cdecode(req.sk, prefix.edsk);
-	    console.log("dec", dec);
-
-	    var enc = b58cencode(dec, prefix.edsk);
-	    console.log("enc", enc);
+	    calcPk(req.sk);
 
 	    var sig = signature(req.payload, req.sk);
 	    console.log("sig", sig);
@@ -56,6 +64,7 @@ const bs58check = require('bs58check');
 	    app.ports.signature.send(sig);
 	} catch(err) {
 	    console.log(err.message);
+	    app.ports.signature.send(null);
 	}
     });
 
