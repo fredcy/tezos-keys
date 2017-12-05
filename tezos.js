@@ -1,7 +1,7 @@
 const Buffer = require('buffer/').Buffer;
 
-import 'libsodium-wrappers';
-import bs58check from 'bs58check';
+const sodium = require('libsodium-wrappers');
+const bs58check = require('bs58check');
 
 (function() {
     var prefix = {
@@ -9,20 +9,19 @@ import bs58check from 'bs58check';
 	edsig: new Uint8Array([9, 245, 205, 134, 18]),
     };
 
-    function b58cdecode(chars, prefix) {
-	// TODO
-	return chars
-    }
-
     function b58cencode(bytes, prefix) {
 	var bytesBuf = Buffer.from(bytes);
 	var prefixBuf = Buffer.from(prefix);
-	console.log("bufs", bytesBuf, prefixBuf);
 	var combined = Buffer.concat([prefixBuf, bytesBuf]);
-	console.log("combined", combined);
+
 	var encoded = bs58check.encode(combined);
-	console.log("encoded", encoded.toString('ascii'));
 	return encoded
+    }
+
+    function b58cdecode(chars, prefix) {
+	var decoded = bs58check.decode(chars);
+	var payload = decoded.slice(prefix.length);
+	return payload;
     }
 
     function signature(bytes, sk_b58check) {
@@ -43,11 +42,21 @@ import bs58check from 'bs58check';
 
     var app = Elm.Main.fullscreen();
 
-    app.ports.sendSk.subscribe(function(sk) {
-	console.log("sendSk", sk);
-	//sig = signature("test message", sk);
-	var enc = b58cencode(sk, prefix.edsig);
-	console.log("enc", enc);
+    app.ports.sendSk.subscribe(function(req) {
+	try {
+	    var dec = b58cdecode(req.sk, prefix.edsk);
+	    console.log("dec", dec);
+
+	    var enc = b58cencode(dec, prefix.edsk);
+	    console.log("enc", enc);
+
+	    var sig = signature(req.payload, req.sk);
+	    console.log("sig", sig);
+
+	    app.ports.signature.send(sig);
+	} catch(err) {
+	    console.log(err.message);
+	}
     });
 
 })();

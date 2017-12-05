@@ -10,36 +10,60 @@ main =
         { init = init
         , update = update
         , view = view
-        , subscriptions = \_ -> Sub.none
+        , subscriptions = \_ -> signature SigModified
         }
 
 
 type alias Model =
-    { privateKey : Maybe String }
+    { privateKey : Maybe String
+    , payload : String
+    , signature : Maybe String
+    }
 
 
 type Msg
     = SkModified String
+    | SigModified (Maybe String)
 
 
 init : ( Model, Cmd Msg )
 init =
-    ( { privateKey = Nothing }, Cmd.none )
+    ( { privateKey = Nothing
+      , payload = "hello world"
+      , signature = Nothing
+      }
+    , Cmd.none
+    )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case Debug.log "msg" msg of
         SkModified sk ->
-            ( model, sendSk sk )
+            ( { model | privateKey = Just sk }
+            , sendSk { sk = sk, payload = model.payload }
+            )
+
+        SigModified sigMaybe ->
+            ( { model | signature = sigMaybe }, Cmd.none )
 
 
 view : Model -> Html Msg
 view model =
     H.div []
-        [ H.text (toString model)
+        [ H.div [] [ H.text (toString model) ]
         , H.div [] [ H.input [ HE.onInput SkModified ] [] ]
+        , H.div [] [ H.text (model.signature |> Maybe.withDefault "") ]
         ]
 
 
-port sendSk : String -> Cmd msg
+type alias SigRequest =
+    { sk : String
+    , payload : String
+    }
+
+
+port sendSk : SigRequest -> Cmd msg
+
+
+port signature : (Maybe String -> msg) -> Sub msg
