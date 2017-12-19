@@ -1,7 +1,7 @@
 const Buffer = require('buffer/').Buffer;
 
-import 'libsodium-wrappers';
-import bs58check from 'bs58check';
+const sodium = require('libsodium-wrappers');
+const bs58check = require('bs58check');
 
 (function() {
     var prefix = {
@@ -20,8 +20,8 @@ import bs58check from 'bs58check';
 	console.log("bufs", bytesBuf, prefixBuf);
 	var combined = Buffer.concat([prefixBuf, bytesBuf]);
 	console.log("combined", combined);
-	var encoded = bs58check.encode(combined);
-	console.log("encoded", encoded.toString('ascii'));
+	var encoded = bs58check.encode(Buffer.from(combined, 'hex'));
+	console.log("encoded", encoded.toString('hex'));
 	return encoded
     }
 
@@ -46,7 +46,7 @@ import bs58check from 'bs58check';
     app.ports.sendSk.subscribe(function(sk) {
 	console.log("sendSk", sk);
 	//sig = signature("test message", sk);
-	var enc = b58cencode(sk, prefix.edsig);
+	var enc = b58cencode(sk, prefix.edsk);
 	console.log("enc", enc);
     });
 
