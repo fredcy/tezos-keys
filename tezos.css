@@ -1,3 +1,19 @@
-div.signature span {
+body {
+    margin: 1em;
+}
+
+div.signature span
+, .pk
+, .pkh
+{
     font-family: Andale Mono, Courier New, monospace;
+}
+
+input.sk {
+    width: 60em;
+}
+
+textarea.payload {
+    width: 80%;
+    height: 5em;
 }

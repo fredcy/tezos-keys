@@ -15,6 +15,7 @@ NODE_URL = http://rpc.ostez.com
 SITE = dist
 
 site: $(SITE) $(SITE)/elm.js $(SITE)/index.html $(SITE)/tezos.css $(SITE)/tezos.js versionfile
+	node_modules/.bin/webpack
 
 $(SITE):
 	mkdir $(SITE)
