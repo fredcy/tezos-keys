@@ -78,4 +78,8 @@ const bs58check = require('bs58check');
 	}
     });
 
+    app.ports.skRequest.subscribe(function(req) {
+        console.log("skRequest:", req);
+    });
+
 })();

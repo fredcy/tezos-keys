@@ -17,3 +17,8 @@ textarea.payload {
     width: 80%;
     height: 5em;
 }
+
+textarea.mnemonic {
+    width: 80%;
+    height: 2.5em;
+}
