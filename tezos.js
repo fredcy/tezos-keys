@@ -1,6 +1,7 @@
 const Buffer = require('buffer/').Buffer;
 const sodium = require('libsodium-wrappers');
 const bs58check = require('bs58check');
+const bip39 = require('bip39');
 
 (function() {
     var prefix = {
@@ -36,7 +37,7 @@ const bs58check = require('bs58check');
 
 	low_half = sk.slice(32);
 	var pk = b58cencode(low_half, prefix.edpk);
-	return pk
+	return pk;
     }
 
     function calcPkHash(pk_b58c) {
@@ -44,6 +45,14 @@ const bs58check = require('bs58check');
 	var hash = sodium.crypto_generichash(20, pk);
 	var pkh = b58cencode(hash, prefix.tz1);
 	return pkh;
+    }
+
+    function calcSk(mnemonic, email, passphrase) {
+	var salt = email + passphrase;
+	var seed = bip39.mnemonicToSeed(mnemonic, salt).slice(0, 32);
+	var kp = sodium.crypto_sign_seed_keypair(seed);
+	var sk = b58cencode(kp.privateKey, prefix.edsk);
+	return sk;
     }
 
     // MAIN
@@ -80,6 +89,13 @@ const bs58check = require('bs58check');
 
     app.ports.skRequest.subscribe(function(req) {
         console.log("skRequest:", req);
+	try {
+	    sk = calcSk(req.mnemonic, req.email, req.passphrase)
+	    app.ports.skResponse.send(sk);
+	} catch(err) {
+	    console.log("skRequest handler", err.message);
+	    app.ports.skResponse.send(null);
+	}
     });
 
 })();

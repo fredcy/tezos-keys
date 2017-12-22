@@ -34,6 +34,7 @@ type Msg
     | MnemonicModified String
     | EmailModified String
     | PassPhraseModified String
+    | SkResponse (Maybe String)
 
 
 init : ( Model, Cmd Msg )
@@ -56,6 +57,7 @@ subscriptions _ =
     Sub.batch
         [ signature SigModified
         , getPk PkModified
+        , skResponse SkResponse
         ]
 
 
@@ -112,6 +114,9 @@ update msg model =
             in
                 ( newModel, requestSecretKey newModel )
 
+        SkResponse skMaybe ->
+            ( { model | secretKey = skMaybe }, Cmd.none )
+
 
 requestSecretKey : Model -> Cmd Msg
 requestSecretKey model =
@@ -150,7 +155,12 @@ view model =
             ]
         , H.div []
             [ H.h2 [] [ H.text "Secret key" ]
-            , H.input [ HE.onInput SkModified, HA.class "sk" ] []
+            , H.input
+                [ HE.onInput SkModified
+                , HA.class "sk"
+                , HA.value (model.secretKey |> Maybe.withDefault "")
+                ]
+                []
             ]
         , H.div []
             [ H.h2 [] [ H.text "Public key" ]
@@ -205,3 +215,6 @@ port getPk : (Maybe PubKeyResponse -> msg) -> Sub msg
 
 
 port skRequest : SkRequest -> Cmd msg
+
+
+port skResponse : (Maybe String -> msg) -> Sub msg
