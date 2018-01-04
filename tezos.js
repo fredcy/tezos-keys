@@ -2,6 +2,8 @@ const Buffer = require('buffer/').Buffer;
 const sodium = require('libsodium-wrappers');
 const bs58check = require('bs58check');
 const bip39 = require('bip39');
+const bitcore = require('bitcore-lib');
+
 
 (function() {
     var prefix = {
@@ -53,6 +55,23 @@ const bip39 = require('bip39');
 	var kp = sodium.crypto_sign_seed_keypair(seed);
 	var sk = b58cencode(kp.privateKey, prefix.edsk);
 	return sk;
+    }
+
+    function bitcoinAddress(pk) {
+	var bitcoin_keys = [
+            "\x02\xc0T!\xaa\x00\x13\xee\xd38T#\xb6<\xd2\x89" +
+		"\xc3BR\x118\xaa\xffj\x91U\xb3\xc7\xc8t\xc3\x1e\xa9",
+            "\x03\xb3\xb1|\xe2\x13\xe4\xed\xb9\xf1\x7f\x0e\x11" +
+		"\xf5h\x80\xa8\x96r\xd2 4\x83\xbb\x7fu\xb1\x1a%_\x08\xdc\x96"
+	]
+
+	var script = bitcore.Script.buildMultisigOut(bitcoin_keys, 2, { noSorting: true });
+	script.prepend("OP_DROP");
+        script.prepend(pkh);
+
+        const scriptHash = bitcore.Script.buildScriptHashOut(script);
+	const address = bitcore.Address.fromScript(scriptHash, bitcore.Networks.mainnet).toString();
+	return address;
     }
 
     // MAIN
