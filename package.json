@@ -10,12 +10,14 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "webpack": "^3.10.0"
+    "webpack": "^4.25.1",
+    "webpack-cli": "^3.1.2"
   },
   "dependencies": {
     "bip39": "^2.4.0",
-    "bitcore-lib": "^0.15.0",
+    "bitcore-lib": "^8.0.0",
     "bs58check": "^2.1.1",
+    "elm": "^0.18.0",
     "libsodium-wrappers": "^0.7.2"
   }
 }

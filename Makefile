@@ -2,10 +2,12 @@ SRC = $(shell find src -name '*.elm')
 
 VERSION = $(shell git describe --always)
 
+ELMMAKE = node_modules/.bin/elm-make
+
 build: elm.js
 
 elm.js: $(SRC)
-	elm make --yes src/Main.elm --output=$@
+	$(ELMMAKE) --yes src/Main.elm --output=$@
 
 ###
 
