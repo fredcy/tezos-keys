@@ -1,12 +1,13 @@
 port module Main exposing (main)
 
+import Browser
 import Html as H exposing (Html)
 import Html.Attributes as HA
 import Html.Events as HE
 
 
 main =
-    H.program
+    Browser.element
         { init = init
         , update = update
         , view = view
@@ -37,8 +38,8 @@ type Msg
     | SkResponse (Maybe String)
 
 
-init : ( Model, Cmd Msg )
-init =
+init : () -> ( Model, Cmd Msg )
+init _ =
     ( { secretKey = Nothing
       , payload = "hello world"
       , signature = Nothing

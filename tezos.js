@@ -83,7 +83,9 @@ const bitcore = require('bitcore-lib');
         now: (new Date()).getTime()
     };
 
-    var app = Elm.Main.fullscreen();
+    var app = Elm.Main.init({
+        node: document.getElementById('elm')
+    });
 
     app.ports.sendSk.subscribe(function(sk) {
 	try {
