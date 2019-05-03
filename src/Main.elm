@@ -73,7 +73,7 @@ update msg model =
             ( newModel
             , Cmd.batch
                 [ requestSignature newModel
-                , Debug.log "requestPk" <| requestPk newModel.secretKey
+                , requestPk newModel.secretKey
                 ]
             )
 
@@ -100,7 +100,7 @@ update msg model =
         MnemonicModified mnemonic ->
             let
                 newModel =
-                    { model | mnemonic = mnemonic }
+                    { model | mnemonic = canonMnemonic mnemonic }
             in
             ( newModel, requestSecretKey newModel )
 
@@ -119,7 +119,13 @@ update msg model =
             ( newModel, requestSecretKey newModel )
 
         SkResponse skMaybe ->
-            ( { model | secretKey = skMaybe }, Cmd.none )
+            ( { model | secretKey = skMaybe }, requestPk skMaybe )
+
+
+canonMnemonic : String -> String
+canonMnemonic s =
+    -- Strip extraneous whitespace so that we have single space between words
+    String.words s |> String.join " "
 
 
 requestSecretKey : Model -> Cmd Msg

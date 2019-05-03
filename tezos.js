@@ -89,7 +89,6 @@ const bitcore = require('bitcore-lib');
     });
 
     app.ports.sendSk.subscribe(function(sk) {
-	console.log("sendSk");
 	try {
 	    pk = calcPk(sk);
 	    pkh = calcPkHash(pk);
