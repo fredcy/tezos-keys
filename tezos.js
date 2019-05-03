@@ -102,10 +102,10 @@ const bitcore = require('bitcore-lib');
     app.ports.sigRequest.subscribe(function(req) {
 	try {
 	    var sig = signature(req.payload, req.sk);
-	    app.ports.signature.send(sig);
+	    app.ports.signature.send({sig: sig, err: null});
 	} catch(err) {
 	    console.log("sigRequest handler", err.message);
-	    app.ports.signature.send(null);
+	    app.ports.signature.send({sig: null, err: err.message});
 	}
     });
 

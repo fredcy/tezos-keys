@@ -18,7 +18,7 @@ main =
 type alias Model =
     { secretKey : Maybe String
     , payload : String
-    , signature : Maybe String
+    , signature : Result String String
     , publicKey : Maybe String
     , publicKeyHash : Maybe String
     , mnemonic : String
@@ -29,7 +29,7 @@ type alias Model =
 
 type Msg
     = SkModified String
-    | SigModified (Maybe String)
+    | SigModified SigResponse
     | PayloadModified String
     | PkModified (Maybe PubKeyResponse)
     | MnemonicModified String
@@ -42,7 +42,7 @@ init : () -> ( Model, Cmd Msg )
 init _ =
     ( { secretKey = Nothing
       , payload = "hello world"
-      , signature = Nothing
+      , signature = Ok ""
       , publicKey = Nothing
       , publicKeyHash = Nothing
       , mnemonic = ""
@@ -84,8 +84,13 @@ update msg model =
             in
             ( newModel, requestSignature newModel )
 
-        SigModified sigMaybe ->
-            ( { model | signature = sigMaybe }, Cmd.none )
+        SigModified sigResponse ->
+            case sigResponse.err of
+                Nothing ->
+                    ( { model | signature = Ok (Maybe.withDefault "" sigResponse.sig) }, Cmd.none )
+
+                Just message ->
+                    ( { model | signature = Err message }, Cmd.none )
 
         PkModified pkResponseMaybe ->
             case pkResponseMaybe of
@@ -186,7 +191,11 @@ view model =
             ]
         , H.div [ HA.class "signature" ]
             [ H.h2 [] [ H.text "Generated signature" ]
-            , H.span [] [ H.text (model.signature |> Maybe.withDefault "") ]
+            , case model.signature of
+                  Ok sig ->
+                      H.span [] [ H.text sig ]
+                  Err msg ->      
+                      H.span [] [ H.text ("error: " ++ msg) ]
             ]
 
         --, H.div [] [ H.text (toString model) ]
@@ -196,6 +205,12 @@ view model =
 type alias SigRequest =
     { sk : String
     , payload : String
+    }
+
+
+type alias SigResponse =
+    { sig : Maybe String
+    , err : Maybe String
     }
 
 
@@ -218,7 +233,7 @@ port sigRequest : SigRequest -> Cmd msg
 port sendSk : String -> Cmd msg
 
 
-port signature : (Maybe String -> msg) -> Sub msg
+port signature : (SigResponse -> msg) -> Sub msg
 
 
 port getPk : (Maybe PubKeyResponse -> msg) -> Sub msg
