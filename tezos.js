@@ -51,8 +51,9 @@ const bitcore = require('bitcore-lib');
 
     function calcSk(mnemonic, email, passphrase) {
 	var salt = email + passphrase;
-	var seed = bip39.mnemonicToSeed(mnemonic, salt).slice(0, 32);
-	var kp = sodium.crypto_sign_seed_keypair(seed);
+	var seed = bip39.mnemonicToSeedSync(mnemonic, salt);
+	var seed32 = seed.slice(0, 32);
+	var kp = sodium.crypto_sign_seed_keypair(seed32);
 	var sk = b58cencode(kp.privateKey, prefix.edsk);
 	return sk;
     }
@@ -88,6 +89,7 @@ const bitcore = require('bitcore-lib');
     });
 
     app.ports.sendSk.subscribe(function(sk) {
+	console.log("sendSk");
 	try {
 	    pk = calcPk(sk);
 	    pkh = calcPkHash(pk);

@@ -70,16 +70,19 @@ update msg model =
                 newModel =
                     { model | secretKey = Just sk }
             in
-                ( newModel
-                , Cmd.batch [ requestSignature newModel, requestPk newModel.secretKey ]
-                )
+            ( newModel
+            , Cmd.batch
+                [ requestSignature newModel
+                , Debug.log "requestPk" <| requestPk newModel.secretKey
+                ]
+            )
 
         PayloadModified payload ->
             let
                 newModel =
                     { model | payload = payload }
             in
-                ( newModel, requestSignature newModel )
+            ( newModel, requestSignature newModel )
 
         SigModified sigMaybe ->
             ( { model | signature = sigMaybe }, Cmd.none )
@@ -99,21 +102,21 @@ update msg model =
                 newModel =
                     { model | mnemonic = mnemonic }
             in
-                ( newModel, requestSecretKey newModel )
+            ( newModel, requestSecretKey newModel )
 
         EmailModified email ->
             let
                 newModel =
                     { model | email = email }
             in
-                ( newModel, requestSecretKey newModel )
+            ( newModel, requestSecretKey newModel )
 
         PassPhraseModified passphrase ->
             let
                 newModel =
                     { model | passphrase = passphrase }
             in
-                ( newModel, requestSecretKey newModel )
+            ( newModel, requestSecretKey newModel )
 
         SkResponse skMaybe ->
             ( { model | secretKey = skMaybe }, Cmd.none )
