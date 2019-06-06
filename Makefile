@@ -16,7 +16,7 @@ NODE_URL = http://rpc.ostez.com
 
 SITE = dist
 
-site: $(SITE) $(SITE)/elm.js $(SITE)/index.html $(SITE)/tezos.css versionfile
+site: $(SITE) $(SITE)/elm.js $(SITE)/index.html $(SITE)/tezos.css $(SITE)/tezos.js versionfile
 	node_modules/.bin/webpack
 
 $(SITE):
@@ -31,8 +31,9 @@ $(SITE)/index.html: index.html Makefile
 $(SITE)/tezos.css: tezos.css
 	cp $< $@
 
-#$(SITE)/tezos.js: tezos.js
-#	perl -pe 's#http://localhost:8732#$(NODE_URL)#' tezos.js >$@
+$(SITE)/tezos.js: tezos.js
+	#perl -pe 's#http://localhost:8732#$(NODE_URL)#' tezos.js >$@
+	cp tezos.js $@	
 
 versionfile:
 	echo "$(VERSION)" > $(SITE)/version.html

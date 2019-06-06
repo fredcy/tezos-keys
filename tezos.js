@@ -5,6 +5,9 @@ const bip39 = require('bip39');
 const bitcore = require('bitcore-lib');
 
 
+// This code borrows heavily from EZTZ: https://github.com/TezTech/eztz.
+// I really should just use EZTZ directly.
+
 (function() {
     var prefix = {
 	tz1: new Uint8Array([6, 161, 159]),
@@ -47,6 +50,12 @@ const bitcore = require('bitcore-lib');
 	var hash = sodium.crypto_generichash(20, pk);
 	var pkh = b58cencode(hash, prefix.tz1);
 	return pkh;
+    }
+
+    function calcPkHex(pk_b58c) {
+	// return string with hex representation of public key
+	var pk = b58cdecode(pk_b58c, prefix.edpk);
+	return pk.toString('hex');
     }
 
     function calcSk(mnemonic, email, passphrase) {
@@ -92,7 +101,8 @@ const bitcore = require('bitcore-lib');
 	try {
 	    pk = calcPk(sk);
 	    pkh = calcPkHash(pk);
-	    app.ports.getPk.send({ pk: pk, pkh: pkh });
+	    pkhex = calcPkHex(pk);
+	    app.ports.getPk.send({ pk: pk, pkh: pkh, pkhex: pkhex });
 	} catch(err) {
 	    console.log("sendSk handler: ", err.message);
 	    app.ports.getPk.send(null);

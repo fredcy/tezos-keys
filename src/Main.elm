@@ -21,6 +21,7 @@ type alias Model =
     , signature : Result String String
     , publicKey : Maybe String
     , publicKeyHash : Maybe String
+    , publicKeyHex : Maybe String
     , mnemonic : String
     , email : String
     , passphrase : String
@@ -45,6 +46,7 @@ init _ =
       , signature = Ok ""
       , publicKey = Nothing
       , publicKeyHash = Nothing
+      , publicKeyHex = Nothing
       , mnemonic = ""
       , email = ""
       , passphrase = ""
@@ -94,13 +96,23 @@ update msg model =
 
         PkModified pkResponseMaybe ->
             case pkResponseMaybe of
-                Just { pk, pkh } ->
-                    ( { model | publicKey = Just pk, publicKeyHash = Just pkh }
+                Just { pk, pkh, pkhex } ->
+                    ( { model
+                        | publicKey = Just pk
+                        , publicKeyHash = Just pkh
+                        , publicKeyHex = Just pkhex
+                      }
                     , Cmd.none
                     )
 
                 Nothing ->
-                    ( { model | publicKey = Nothing, publicKeyHash = Nothing }, Cmd.none )
+                    ( { model
+                        | publicKey = Nothing
+                        , publicKeyHash = Nothing
+                        , publicKeyHex = Nothing
+                      }
+                    , Cmd.none
+                    )
 
         MnemonicModified mnemonic ->
             let
@@ -182,6 +194,10 @@ view model =
             , H.span [ HA.class "pk" ] [ H.text (model.publicKey |> Maybe.withDefault "") ]
             ]
         , H.div []
+            [ H.h2 [] [ H.text "Public key hex" ]
+            , H.span [ HA.class "pk" ] [ H.text (model.publicKeyHex |> Maybe.withDefault "") ]
+            ]
+        , H.div []
             [ H.h2 [] [ H.text "Public key hash" ]
             , H.span [ HA.class "pkh" ] [ H.text (model.publicKeyHash |> Maybe.withDefault "") ]
             ]
@@ -192,10 +208,11 @@ view model =
         , H.div [ HA.class "signature" ]
             [ H.h2 [] [ H.text "Generated signature" ]
             , case model.signature of
-                  Ok sig ->
-                      H.span [] [ H.text sig ]
-                  Err msg ->      
-                      H.span [] [ H.text ("error: " ++ msg) ]
+                Ok sig ->
+                    H.span [] [ H.text sig ]
+
+                Err msg ->
+                    H.span [] [ H.text ("error: " ++ msg) ]
             ]
 
         --, H.div [] [ H.text (toString model) ]
@@ -217,6 +234,7 @@ type alias SigResponse =
 type alias PubKeyResponse =
     { pk : String
     , pkh : String
+    , pkhex : String
     }
 
 
