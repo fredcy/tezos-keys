@@ -1,13 +1,19 @@
 # tezos-keys
 
-## To install
+## Install
 
 ```
 npm install
 ```
 
-## To build
+## Build
 
 ```
-make
+make site
+```
+
+## Run
+
+```
+open dist/index.html
 ```
